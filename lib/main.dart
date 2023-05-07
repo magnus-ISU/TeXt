@@ -14,7 +14,9 @@ class MyApp extends StatelessWidget {
 	Widget build(BuildContext context) {
 		return MaterialApp(
 			title: 'TeXt',
-			theme: ThemeData( primarySwatch: Colors.blue,),
+			theme: ThemeData(
+				primarySwatch: Colors.blue,
+			),
 			darkTheme: ThemeData.dark().copyWith(primaryColor: Colors.blue),
 			themeMode: ThemeMode.system,
 			home: MyHomePage(),
@@ -53,6 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
 					_lines.removeAt(j);
 				}
 			}
+			if (i == _lines.length - 2 && _lines[i].trim().isEmpty) {}
 		});
 	}
 
@@ -141,11 +144,8 @@ class _MyHomePageState extends State<MyHomePage> {
 												TeXViewGroupItem(
 													id: i.toString(),
 													child: TeXViewDocument(_lines[i],
-															style: _lines[i].trim().isEmpty
-																	? const TeXViewStyle(
-																			padding: TeXViewPadding.all(25))
-																	: const TeXViewStyle(
-																			padding: TeXViewPadding.all(7))),
+															style: const TeXViewStyle(
+																	padding: TeXViewPadding.all(7))),
 												),
 										],
 										onTap: (id) => {
@@ -153,9 +153,10 @@ class _MyHomePageState extends State<MyHomePage> {
 										},
 									),
 									style: TeXViewStyle(
-										contentColor: MediaQuery.platformBrightnessOf(context) == Brightness.dark
-											? Colors.white70
-											: Colors.black12,
+										contentColor: MediaQuery.platformBrightnessOf(context) ==
+														Brightness.dark
+												? Colors.white70
+												: Colors.black12,
 									),
 									renderingEngine: const TeXViewRenderingEngine.katex(),
 								),
@@ -200,38 +201,39 @@ class _MyHomePageState extends State<MyHomePage> {
 								TeXView(
 									child: TeXViewGroup(
 										children: [
-											for (int i = editingLine; i < _lines.length; i += 1)
+											for (int i = editingLine; i < _lines.length - 1; i += 1)
 												TeXViewGroupItem(
 													id: i.toString(),
 													child: TeXViewDocument(_lines[i],
-															style: _lines[i].trim().isEmpty
-																	? const TeXViewStyle(
-																			padding: TeXViewPadding.all(25),
-																			border: TeXViewBorder.all(TeXViewBorderDecoration(borderWidth: 2, borderColor: Colors.blue))
-																		)
-																	: const TeXViewStyle(
-																			padding: TeXViewPadding.all(7),
-																			border: TeXViewBorder.all(TeXViewBorderDecoration(borderWidth: 1, borderColor: Colors.blue))
-																		)
-													),
+															style: const TeXViewStyle(
+																	padding: TeXViewPadding.all(7))),
 												),
+											TeXViewGroupItem(
+												id: (_lines.length - 1).toString(),
+												child: const TeXViewDocument("",
+														style: TeXViewStyle(
+																padding: TeXViewPadding.all(50),
+																border: TeXViewBorder.only(
+																		bottom: TeXViewBorderDecoration(
+																	borderWidth: 2,
+																	borderColor: Colors.blue,
+																	borderStyle: TeXViewBorderStyle.dotted,
+																)))),
+											),
 										],
 										onTap: (id) => {
-											setEditingLine(int.parse(id)),
+											if (editingLine != int.parse(id)) {
+												setEditingLine(int.parse(id)),
+											}
 										},
 									),
 									style: TeXViewStyle(
-										contentColor: MediaQuery.platformBrightnessOf(context) == Brightness.dark
-											? Colors.white70
-											: Colors.black12,
+										contentColor: MediaQuery.platformBrightnessOf(context) ==
+														Brightness.dark
+												? Colors.white70
+												: Colors.black12,
 									),
 									renderingEngine: const TeXViewRenderingEngine.katex(),
-								),
-								GestureDetector(
-									child: const Padding(padding: EdgeInsets.all(30)),
-									onTap: () {
-										setEditingLine(_lines.length - 1);
-									},
 								),
 							],
 						),
