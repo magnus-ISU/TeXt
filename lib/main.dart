@@ -24,20 +24,26 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+	final TextEditingController editingController = TextEditingController();
 	final List<String> _lines = [];
 	int editingLine = 0;
+
+	void setEditingLine(int i) {
+		editingLine = i;
+		editingController.text = _lines[i];
+	}
 
 	@override
 	void initState() {
 		super.initState();
 		_lines.add("Add some \\( \\LaTeX \\) here!");
-		_lines.add("Add some \\( \\LaTeX \\) here!");
-		_lines.add("Add some \\( \\LaTeX \\) here!");
-		_lines.add("Add some \\( \\LaTeX \\) here!");
-		_lines.add("Add some \\( \\LaTeX \\) here!");
-		_lines.add("Add some \\( \\LaTeX \\) here!");
-		_lines.add("");
-		editingLine = 3;
+		_lines.add(
+				"This is a cool equation: \\[ \\sum_{n=0}^\\infty b^n = \\frac 1 {1-b} \\]");
+		_lines.add("This line has no cool equations :(");
+		_lines.add("But this is a good opportunity to try other things too though");
+		_lines.add("I just don't know if it is worth it");
+		_lines.add("But you can do whatever you want you know");
+		setEditingLine(3);
 	}
 
 	@override
@@ -52,12 +58,9 @@ class _MyHomePageState extends State<MyHomePage> {
 					child: Column(
 						crossAxisAlignment: CrossAxisAlignment.stretch,
 						children: [
-							Text("Test"),
 							TeXView(
-								key: Key("AboveKey"),
 								child: TeXViewGroup(
 									children: [
-										TeXViewGroupItem(id: "-1", child: TeXViewDocument("This is some latex that should always display. \\[a = b\\]. Bottom text")),
 										for (int i = 0; i < editingLine; i += 1)
 											TeXViewGroupItem(
 												id: i.toString(),
@@ -67,16 +70,17 @@ class _MyHomePageState extends State<MyHomePage> {
 									onTap: (id) => {
 										print(id),
 										setState(() {
-											editingLine = int.parse(id);
+											setEditingLine(int.parse(id));
 										})
 									},
 								),
 								renderingEngine: const TeXViewRenderingEngine.katex(),
 							),
-							Text("Test"),
 							TextFormField(
+								keyboardType: TextInputType.multiline,
+								maxLines: null,
 								autofocus: true,
-								initialValue: _lines[editingLine],
+								controller: editingController,
 								decoration: const InputDecoration(
 									border: OutlineInputBorder(),
 									hintText: 'Enter LaTeX equation',
@@ -89,13 +93,11 @@ class _MyHomePageState extends State<MyHomePage> {
 								onFieldSubmitted: (text) {
 									setState(() {
 										_lines.add("");
-										editingLine = _lines.length - 1;
+										setEditingLine(_lines.length - 1);
 									});
-									print("Done editing!");
 								},
 							),
 							TeXView(
-								key: Key("BelowKey"),
 								child: TeXViewGroup(
 									children: [
 										for (int i = editingLine + 1; i < _lines.length; i += 1)
@@ -105,27 +107,16 @@ class _MyHomePageState extends State<MyHomePage> {
 											),
 									],
 									onTap: (id) => {
-										print(id),
 										setState(() {
-											editingLine = int.parse(id);
+											setEditingLine(int.parse(id));
 										})
 									},
 								),
 								renderingEngine: const TeXViewRenderingEngine.katex(),
 							),
-							const SizedBox(height: 16.0),
 						],
 					),
 				),
-			),
-			floatingActionButton: FloatingActionButton(
-				onPressed: () {
-					setState(() {
-						_lines.add("new line");
-						editingLine = _lines.length - 1;
-					});
-				},
-				child: const Icon(Icons.add),
 			),
 		);
 	}
