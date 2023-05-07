@@ -1,4 +1,4 @@
-package com.example.latex_editor
+package com.magnus.text_latex_editor
 
 import io.flutter.embedding.android.FlutterActivity
 
