@@ -67,7 +67,9 @@ class _MyHomePageState extends State<MyHomePage> {
 												id: i.toString(),
 												child: TeXViewDocument(
 													_lines[i],
-													style: const TeXViewStyle(padding: TeXViewPadding.all(16))
+													style: _lines[i].trim().isEmpty
+														? const TeXViewStyle(padding: TeXViewPadding.all(25))
+														: const TeXViewStyle(padding: TeXViewPadding.all(7))
 												),
 											),
 									],
@@ -116,7 +118,9 @@ class _MyHomePageState extends State<MyHomePage> {
 												id: i.toString(),
 												child: TeXViewDocument(
 													_lines[i],
-													style: const TeXViewStyle(padding: TeXViewPadding.all(16))
+													style: _lines[i].trim().isEmpty
+														? const TeXViewStyle(padding: TeXViewPadding.all(25))
+														: const TeXViewStyle(padding: TeXViewPadding.all(7))
 												),
 											),
 									],
