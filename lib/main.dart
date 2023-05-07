@@ -33,6 +33,10 @@ class _MyHomePageState extends State<MyHomePage> {
 		editingController.text = _lines[i];
 	}
 
+	String processLineForEmpty(String text) {
+		return text;
+	}
+
 	@override
 	void initState() {
 		super.initState();
@@ -42,6 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
 		_lines.add("This line has no cool equations :(");
 		_lines.add("But this is a good opportunity to try other things too though");
 		_lines.add("I just don't know if it is worth it");
+		_lines.add("");
 		_lines.add("But you can do whatever you want you know");
 		setEditingLine(3);
 	}
@@ -64,11 +69,13 @@ class _MyHomePageState extends State<MyHomePage> {
 										for (int i = 0; i < editingLine; i += 1)
 											TeXViewGroupItem(
 												id: i.toString(),
-												child: TeXViewDocument(_lines[i]),
+												child: TeXViewDocument(
+													processLineForEmpty(_lines[i]),
+													style: const TeXViewStyle(padding: TeXViewPadding.all(16))
+												),
 											),
 									],
 									onTap: (id) => {
-										print(id),
 										setState(() {
 											setEditingLine(int.parse(id));
 										})
@@ -86,9 +93,17 @@ class _MyHomePageState extends State<MyHomePage> {
 									hintText: 'Enter LaTeX equation',
 								),
 								onChanged: (text) {
-									setState(() {
-										_lines[editingLine] = text;
-									});
+									if (text.endsWith("\n\n")) {
+										text = text.trimRight();
+										setState(() {
+											_lines.insert(editingLine + 1, "");
+											setEditingLine(editingLine + 1);
+										});
+									} else {
+										setState(() {
+											_lines[editingLine] = text;
+										});
+									}
 								},
 								onFieldSubmitted: (text) {
 									setState(() {
@@ -103,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
 										for (int i = editingLine + 1; i < _lines.length; i += 1)
 											TeXViewGroupItem(
 												id: i.toString(),
-												child: TeXViewDocument(_lines[i]),
+												child: TeXViewDocument(processLineForEmpty(_lines[i])),
 											),
 									],
 									onTap: (id) => {
