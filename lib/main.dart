@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tex/flutter_tex.dart';
 
+import 'dart:io';
+import 'dart:async';
+import 'package:path_provider/path_provider.dart';
+
 void main() {
 	runApp(MyApp());
 }
@@ -10,9 +14,9 @@ class MyApp extends StatelessWidget {
 	Widget build(BuildContext context) {
 		return MaterialApp(
 			title: 'TeXt',
-			theme: ThemeData(
-				primarySwatch: Colors.blue,
-			),
+			theme: ThemeData( primarySwatch: Colors.blue,),
+			darkTheme: ThemeData.dark().copyWith(primaryColor: Colors.blue),
+			themeMode: ThemeMode.system,
 			home: MyHomePage(),
 		);
 	}
@@ -28,6 +32,8 @@ class _MyHomePageState extends State<MyHomePage> {
 	final List<String> _lines = [];
 	int editingLine = 0;
 
+	Timer? _debounceTimer;
+
 	void setEditingLine(int i) {
 		setState(() {
 			for (int j = 0; j < i; j++) {
@@ -38,9 +44,10 @@ class _MyHomePageState extends State<MyHomePage> {
 			}
 			editingLine = i;
 			editingController.value = TextEditingValue(
-				text: _lines[i],
-				selection: TextSelection.collapsed(offset: _lines[i].length, affinity: TextAffinity.downstream),
-			);
+					text: "${_lines[i]} ",
+					selection: TextSelection(
+							baseOffset: _lines[i].length,
+							extentOffset: _lines[i].length + 1));
 			for (int j = i + 1; j < _lines.length - 1; j++) {
 				if (_lines[j].trim().isEmpty) {
 					_lines.removeAt(j);
@@ -49,13 +56,60 @@ class _MyHomePageState extends State<MyHomePage> {
 		});
 	}
 
+	void _saveFile() async {
+		try {
+			final file = await _localFile;
+			await file.writeAsString(_lines.join('\n\n'));
+		} catch (e) {
+			// handle file save error
+		}
+	}
+
+	void _debounceSave() {
+		if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
+		_debounceTimer = Timer(const Duration(milliseconds: 1500), () {
+			_saveFile();
+		});
+	}
+
+	Future<String> get _localPath async {
+		final directory = await getApplicationDocumentsDirectory();
+		return directory.path;
+	}
+
+	Future<File> get _localFile async {
+		final path = await _localPath;
+		return File('$path/scratch.tex');
+	}
+
+	Future<List<String>> _readLines() async {
+		List<String> lines = [
+			"Add some \\( \\LaTeX \\) here!",
+			"This is a cool equation:\n\\[\n\\sum_{n=0}^\\infty b^n = \\frac 1 {1-b}\n\\]",
+			"",
+		];
+		try {
+			final file = await _localFile;
+			if (file.existsSync()) {
+				String contents = await file.readAsString();
+				lines = contents.split('\n\n');
+			}
+			return lines;
+		} catch (e) {
+			return lines;
+		}
+	}
+
 	@override
 	void initState() {
 		super.initState();
-		_lines.add("Add some \\( \\LaTeX \\) here!");
-		_lines.add("This is a cool equation:\n\\[\n\\sum_{n=0}^\\infty b^n = \\frac 1 {1-b}\n\\]");
-		_lines.add("");
-		setEditingLine(_lines.length - 1);
+		_readLines().then((List<String> lines) {
+			setState(() {
+				_lines.clear();
+				_lines.addAll(lines);
+				setEditingLine(_lines.length - 1);
+			});
+		});
 	}
 
 	Future<bool> onWillPop() async {
@@ -72,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
 			onWillPop: onWillPop,
 			child: Scaffold(
 				appBar: AppBar(
-					title: const Text('WYSIWYG Text Editor with LaTeX Support'),
+					title: const Text('TeXt'),
 				),
 				body: Padding(
 					padding: const EdgeInsets.all(8.0),
@@ -98,6 +152,11 @@ class _MyHomePageState extends State<MyHomePage> {
 											setEditingLine(int.parse(id)),
 										},
 									),
+									style: TeXViewStyle(
+										contentColor: MediaQuery.platformBrightnessOf(context) == Brightness.dark
+											? Colors.white70
+											: Colors.black12,
+									),
 									renderingEngine: const TeXViewRenderingEngine.katex(),
 								),
 								TextFormField(
@@ -117,7 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
 											});
 										} else {
 											setState(() {
-												_lines[editingLine] = text.trimRight();
+												_lines[editingLine] = text.trim();
 											});
 											if (editingLine == _lines.length - 1) {
 												if (text.trim().isNotEmpty) {
@@ -126,6 +185,7 @@ class _MyHomePageState extends State<MyHomePage> {
 													});
 												}
 											}
+											_debounceSave();
 										}
 									},
 									onFieldSubmitted: (text) {
@@ -149,6 +209,11 @@ class _MyHomePageState extends State<MyHomePage> {
 										onTap: (id) => {
 											setEditingLine(int.parse(id)),
 										},
+									),
+									style: TeXViewStyle(
+										contentColor: MediaQuery.platformBrightnessOf(context) == Brightness.dark
+											? Colors.white70
+											: Colors.black12,
 									),
 									renderingEngine: const TeXViewRenderingEngine.katex(),
 								),
