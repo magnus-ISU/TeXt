@@ -47,92 +47,112 @@ class _MyHomePageState extends State<MyHomePage> {
 		setEditingLine(3);
 	}
 
+	Future<bool> onWillPop() async {
+		if (editingLine == _lines.length - 1) {
+			return true;
+		}
+		setState(() {
+			setEditingLine(_lines.length - 1);
+		});
+		return false;
+	}
+
 	@override
 	Widget build(BuildContext context) {
-		return Scaffold(
-			appBar: AppBar(
-				title: const Text('WYSIWYG Text Editor with LaTeX Support'),
-			),
-			body: Padding(
-				padding: const EdgeInsets.all(8.0),
-				child: SingleChildScrollView(
-					child: Column(
-						crossAxisAlignment: CrossAxisAlignment.stretch,
-						children: [
-							TeXView(
-								child: TeXViewGroup(
-									children: [
-										for (int i = 0; i < editingLine; i += 1)
-											TeXViewGroupItem(
-												id: i.toString(),
-												child: TeXViewDocument(
-													_lines[i],
-													style: _lines[i].trim().isEmpty
-														? const TeXViewStyle(padding: TeXViewPadding.all(25))
-														: const TeXViewStyle(padding: TeXViewPadding.all(7))
+		return WillPopScope(
+			onWillPop: onWillPop,
+			child: Scaffold(
+				appBar: AppBar(
+					title: const Text('WYSIWYG Text Editor with LaTeX Support'),
+				),
+				body: Padding(
+					padding: const EdgeInsets.all(8.0),
+					child: SingleChildScrollView(
+						child: Column(
+							crossAxisAlignment: CrossAxisAlignment.stretch,
+							children: [
+								TeXView(
+									child: TeXViewGroup(
+										children: [
+											for (int i = 0; i < editingLine; i += 1)
+												TeXViewGroupItem(
+													id: i.toString(),
+													child: TeXViewDocument(_lines[i],
+															style: _lines[i].trim().isEmpty
+																	? const TeXViewStyle(
+																			padding: TeXViewPadding.all(25))
+																	: const TeXViewStyle(
+																			padding: TeXViewPadding.all(7))),
 												),
-											),
-									],
-									onTap: (id) => {
+										],
+										onTap: (id) => {
+											setState(() {
+												setEditingLine(int.parse(id));
+											})
+										},
+									),
+									renderingEngine: const TeXViewRenderingEngine.katex(),
+								),
+								TextFormField(
+									keyboardType: TextInputType.multiline,
+									maxLines: null,
+									autofocus: true,
+									controller: editingController,
+									decoration: const InputDecoration(
+										border: OutlineInputBorder(),
+										hintText: 'Enter LaTeX equation',
+									),
+									onChanged: (text) {
+										if (text.endsWith("\n\n")) {
+											text = text.trimRight();
+											setState(() {
+												_lines.insert(editingLine + 1, "");
+												setEditingLine(editingLine + 1);
+											});
+										} else {
+											setState(() {
+												_lines[editingLine] = text;
+											});
+											if (editingLine == _lines.length - 1) {
+												if (text.trim().isEmpty) {
+													setState(() {
+														_lines.add("");
+													});
+												}
+											}
+										}
+									},
+									onFieldSubmitted: (text) {
 										setState(() {
-											setEditingLine(int.parse(id));
-										})
+											_lines.add("");
+											setEditingLine(_lines.length - 1);
+										});
 									},
 								),
-								renderingEngine: const TeXViewRenderingEngine.katex(),
-							),
-							TextFormField(
-								keyboardType: TextInputType.multiline,
-								maxLines: null,
-								autofocus: true,
-								controller: editingController,
-								decoration: const InputDecoration(
-									border: OutlineInputBorder(),
-									hintText: 'Enter LaTeX equation',
-								),
-								onChanged: (text) {
-									if (text.endsWith("\n\n")) {
-										text = text.trimRight();
-										setState(() {
-											_lines.insert(editingLine + 1, "");
-											setEditingLine(editingLine + 1);
-										});
-									} else {
-										setState(() {
-											_lines[editingLine] = text;
-										});
-									}
-								},
-								onFieldSubmitted: (text) {
-									setState(() {
-										_lines.add("");
-										setEditingLine(_lines.length - 1);
-									});
-								},
-							),
-							TeXView(
-								child: TeXViewGroup(
-									children: [
-										for (int i = editingLine + 1; i < _lines.length; i += 1)
-											TeXViewGroupItem(
-												id: i.toString(),
-												child: TeXViewDocument(
-													_lines[i],
-													style: _lines[i].trim().isEmpty
-														? const TeXViewStyle(padding: TeXViewPadding.all(25))
-														: const TeXViewStyle(padding: TeXViewPadding.all(7))
+								TeXView(
+									child: TeXViewGroup(
+										children: [
+											for (int i = editingLine + 1; i < _lines.length; i += 1)
+												TeXViewGroupItem(
+													id: i.toString(),
+													child: TeXViewDocument(_lines[i],
+															style: _lines[i].trim().isEmpty
+																	? const TeXViewStyle(
+																			padding: TeXViewPadding.all(25))
+																	: const TeXViewStyle(
+																			padding: TeXViewPadding.all(7))),
 												),
-											),
-									],
-									onTap: (id) => {
-										setState(() {
-											setEditingLine(int.parse(id));
-										})
-									},
+										],
+										onTap: (id) => {
+											setState(() {
+												setEditingLine(int.parse(id));
+											})
+										},
+									),
+									renderingEngine: const TeXViewRenderingEngine.katex(),
 								),
-								renderingEngine: const TeXViewRenderingEngine.katex(),
-							),
-						],
+							],
+						),
 					),
 				),
 			),
