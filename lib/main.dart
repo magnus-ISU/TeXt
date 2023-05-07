@@ -31,7 +31,13 @@ class _MyHomePageState extends State<MyHomePage> {
 	void initState() {
 		super.initState();
 		_lines.add("Add some \\( \\LaTeX \\) here!");
-		editingLine = 1;
+		_lines.add("Add some \\( \\LaTeX \\) here!");
+		_lines.add("Add some \\( \\LaTeX \\) here!");
+		_lines.add("Add some \\( \\LaTeX \\) here!");
+		_lines.add("Add some \\( \\LaTeX \\) here!");
+		_lines.add("Add some \\( \\LaTeX \\) here!");
+		_lines.add("");
+		editingLine = 3;
 	}
 
 	@override
@@ -46,9 +52,12 @@ class _MyHomePageState extends State<MyHomePage> {
 					child: Column(
 						crossAxisAlignment: CrossAxisAlignment.stretch,
 						children: [
+							Text("Test"),
 							TeXView(
+								key: Key("AboveKey"),
 								child: TeXViewGroup(
 									children: [
+										TeXViewGroupItem(id: "-1", child: TeXViewDocument("This is some latex that should always display. \\[a = b\\]. Bottom text")),
 										for (int i = 0; i < editingLine; i += 1)
 											TeXViewGroupItem(
 												id: i.toString(),
@@ -64,6 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
 								),
 								renderingEngine: const TeXViewRenderingEngine.katex(),
 							),
+							Text("Test"),
 							TextFormField(
 								autofocus: true,
 								initialValue: _lines[editingLine],
@@ -85,6 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
 								},
 							),
 							TeXView(
+								key: Key("BelowKey"),
 								child: TeXViewGroup(
 									children: [
 										for (int i = editingLine + 1; i < _lines.length; i += 1)
