@@ -1,16 +1,9 @@
-# latex_editor
+# TeXt
 
-A new Flutter project.
+WYSIWYG editor for latex on android.
 
-## Getting Started
+Due to bugs in `flutter_tex`, doesn't work on web :(
 
-This project is a starting point for a Flutter application.
+## Planned features
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Probably nothing, I made this for myself.
