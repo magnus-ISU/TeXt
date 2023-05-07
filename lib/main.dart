@@ -114,7 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
 												_lines[editingLine] = text;
 											});
 											if (editingLine == _lines.length - 1) {
-												if (text.trim().isEmpty) {
+												if (text.trim().isNotEmpty) {
 													setState(() {
 														_lines.add("");
 													});
