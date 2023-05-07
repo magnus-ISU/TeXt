@@ -46,51 +46,62 @@ class _MyHomePageState extends State<MyHomePage> {
 					child: Column(
 						crossAxisAlignment: CrossAxisAlignment.stretch,
 						children: [
-							for (var i = 0; i < _lines.length; i++)
-								_editingFlags[i]
-										? TextFormField(
-												autofocus: true,
-												initialValue: _lines[i],
-												decoration: const InputDecoration(
-													border: OutlineInputBorder(),
-													hintText: 'Enter LaTeX equation',
-												),
-												onChanged: (text) {
-													setState(() {
-														_lines[i] = text;
-													});
-												},
-												onFieldSubmitted: (text) {
-													setState(() {
-														_editingFlags[i] = false;
-													});
-													print("Done editing!");
-												},
-											)
-										: GestureDetector(
-												behavior: HitTestBehavior.translucent,
-												onTapUp: (tap) {
-													Offset i = tap.localPosition;
-													print(i.distance.toString() + " " + i.dy.toString());
-												},
-												child: TeXView(
-													child: TeXViewGroup(
-														children: [
-															TeXViewGroupItem(
-																id: i.toString(),
-																child: TeXViewDocument(_lines[i]),
-															),
-														],
-														onTap: (id) => {
-															print(id),
-															setState(() {
-																_editingFlags[int.parse(id)] = true;
-															})
-														},
-													),
-													renderingEngine: const TeXViewRenderingEngine.katex(),
-												),
+							TeXView(
+								child: TeXViewGroup(
+									children: [
+										for (int i = 0; i < editingLine; i += 1)
+											TeXViewGroupItem(
+												id: i.toString(),
+												child: TeXViewDocument(_lines[i]),
 											),
+									],
+									onTap: (id) => {
+										print(id),
+										setState(() {
+											editingLine = int.parse(id);
+										})
+									},
+								),
+								renderingEngine: const TeXViewRenderingEngine.katex(),
+							),
+							TextFormField(
+								autofocus: true,
+								initialValue: _lines[editingLine],
+								decoration: const InputDecoration(
+									border: OutlineInputBorder(),
+									hintText: 'Enter LaTeX equation',
+								),
+								onChanged: (text) {
+									setState(() {
+										_lines[editingLine] = text;
+									});
+								},
+								onFieldSubmitted: (text) {
+									setState(() {
+										_lines.add("");
+										editingLine = _lines.length - 1;
+									});
+									print("Done editing!");
+								},
+							),
+							TeXView(
+								child: TeXViewGroup(
+									children: [
+										for (int i = editingLine + 1; i < _lines.length; i += 1)
+											TeXViewGroupItem(
+												id: i.toString(),
+												child: TeXViewDocument(_lines[i]),
+											),
+									],
+									onTap: (id) => {
+										print(id),
+										setState(() {
+											editingLine = int.parse(id);
+										})
+									},
+								),
+								renderingEngine: const TeXViewRenderingEngine.katex(),
+							),
 							const SizedBox(height: 16.0),
 						],
 					),
@@ -100,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
 				onPressed: () {
 					setState(() {
 						_lines.add("new line");
-						_editingFlags.add(false);
+						editingLine = _lines.length - 1;
 					});
 				},
 				child: const Icon(Icons.add),
