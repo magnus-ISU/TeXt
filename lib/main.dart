@@ -174,6 +174,11 @@ class _MyHomePageState extends State<MyHomePage> {
 												_lines.insert(editingLine + 1, "");
 												setEditingLine(editingLine + 1);
 											});
+										} else if (text.startsWith("\n\n")) {
+											setState(() {
+												_lines.insert(editingLine, "");
+												setEditingLine(editingLine);
+											});
 										} else {
 											setState(() {
 												_lines[editingLine] = text.trim();
@@ -195,15 +200,20 @@ class _MyHomePageState extends State<MyHomePage> {
 								TeXView(
 									child: TeXViewGroup(
 										children: [
-											for (int i = editingLine + 1; i < _lines.length; i += 1)
+											for (int i = editingLine; i < _lines.length; i += 1)
 												TeXViewGroupItem(
 													id: i.toString(),
 													child: TeXViewDocument(_lines[i],
 															style: _lines[i].trim().isEmpty
 																	? const TeXViewStyle(
-																			padding: TeXViewPadding.all(25))
+																			padding: TeXViewPadding.all(25),
+																			border: TeXViewBorder.all(TeXViewBorderDecoration(borderWidth: 2, borderColor: Colors.blue))
+																		)
 																	: const TeXViewStyle(
-																			padding: TeXViewPadding.all(7))),
+																			padding: TeXViewPadding.all(7),
+																			border: TeXViewBorder.all(TeXViewBorderDecoration(borderWidth: 1, borderColor: Colors.blue))
+																		)
+													),
 												),
 										],
 										onTap: (id) => {

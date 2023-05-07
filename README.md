@@ -1,6 +1,6 @@
 # TeXt
 
-WYSIWYG editor for latex on android.
+WYSIWYG offline editor for latex on android.
 
 Due to bugs in `flutter_tex`, doesn't work on web :(
 
