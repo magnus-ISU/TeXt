@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
 	@override
 	Widget build(BuildContext context) {
 		return MaterialApp(
-			title: 'WYSIWYG Text Editor with LaTeX Support',
+			title: 'TeXt',
 			theme: ThemeData(
 				primarySwatch: Colors.blue,
 			),
@@ -31,6 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
 	void setEditingLine(int i) {
 		editingLine = i;
 		editingController.text = _lines[i];
+		editingController.selection = TextSelection.fromPosition(TextPosition(offset: editingController.text.length));
 	}
 
 	@override
@@ -99,14 +100,13 @@ class _MyHomePageState extends State<MyHomePage> {
 									),
 									onChanged: (text) {
 										if (text.endsWith("\n\n")) {
-											text = text.trimRight();
 											setState(() {
 												_lines.insert(editingLine + 1, "");
 												setEditingLine(editingLine + 1);
 											});
 										} else {
 											setState(() {
-												_lines[editingLine] = text;
+												_lines[editingLine] = text.trimRight();
 											});
 											if (editingLine == _lines.length - 1) {
 												if (text.trim().isNotEmpty) {
@@ -145,6 +145,14 @@ class _MyHomePageState extends State<MyHomePage> {
 										},
 									),
 									renderingEngine: const TeXViewRenderingEngine.katex(),
+								),
+								GestureDetector(
+									child: const Padding(padding: EdgeInsets.all(30)),
+									onTap: () {
+										setState(() {
+											setEditingLine(_lines.length - 1);
+										});
+									},
 								),
 							],
 						),
