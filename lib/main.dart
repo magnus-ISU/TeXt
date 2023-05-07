@@ -31,6 +31,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 	final TextEditingController editingController = TextEditingController();
+	final ScrollController scrollController = ScrollController();
 	final List<String> _lines = [];
 	int editingLine = 0;
 
@@ -116,11 +117,15 @@ class _MyHomePageState extends State<MyHomePage> {
 	}
 
 	Future<bool> onWillPop() async {
-		if (editingLine == _lines.length - 1) {
-			return true;
+		if (editingLine < _lines.length - 1) {
+			setEditingLine(_lines.length - 1);
+			return false;
 		}
-		setEditingLine(_lines.length - 1);
-		return false;
+		if (scrollController.offset != scrollController.position.maxScrollExtent) {
+			scrollController.animateTo(scrollController.position.maxScrollExtent, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+			return false;
+		}
+		return true;
 	}
 
 	@override
@@ -134,6 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
 				body: Padding(
 					padding: const EdgeInsets.all(8.0),
 					child: SingleChildScrollView(
+						controller: scrollController,
 						child: Column(
 							crossAxisAlignment: CrossAxisAlignment.stretch,
 							children: [
