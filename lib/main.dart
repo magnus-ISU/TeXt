@@ -37,14 +37,9 @@ class _MyHomePageState extends State<MyHomePage> {
 	void initState() {
 		super.initState();
 		_lines.add("Add some \\( \\LaTeX \\) here!");
-		_lines.add(
-				"This is a cool equation: \\[ \\sum_{n=0}^\\infty b^n = \\frac 1 {1-b} \\]");
-		_lines.add("This line has no cool equations :(");
-		_lines.add("But this is a good opportunity to try other things too though");
-		_lines.add("I just don't know if it is worth it");
+		_lines.add("This is a cool equation:\n\\[\n\\sum_{n=0}^\\infty b^n = \\frac 1 {1-b}\n\\]\n");
 		_lines.add("");
-		_lines.add("But you can do whatever you want you know");
-		setEditingLine(3);
+		setEditingLine(_lines.length - 1);
 	}
 
 	Future<bool> onWillPop() async {
