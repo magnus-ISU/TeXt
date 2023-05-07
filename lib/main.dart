@@ -24,7 +24,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-	final TextEditingController _textEditingController = TextEditingController();
+	final List<String> _lines = [];
+	int editingLine = 0;
+
+	@override
+	void initState() {
+		super.initState();
+		_lines.add("Add some \\( \\LaTeX \\) here!");
+		editingLine = 1;
+	}
 
 	@override
 	Widget build(BuildContext context) {
@@ -38,27 +46,64 @@ class _MyHomePageState extends State<MyHomePage> {
 					child: Column(
 						crossAxisAlignment: CrossAxisAlignment.stretch,
 						children: [
-							TextField(
-								controller: _textEditingController,
-								keyboardType: TextInputType.multiline,
-								maxLines: null,
-								decoration: const InputDecoration(
-									hintText: 'Enter text with inline LaTeX equations',
-								),
-								onChanged: (text) {
-									setState(() {});
-								},
-							),
+							for (var i = 0; i < _lines.length; i++)
+								_editingFlags[i]
+										? TextFormField(
+												autofocus: true,
+												initialValue: _lines[i],
+												decoration: const InputDecoration(
+													border: OutlineInputBorder(),
+													hintText: 'Enter LaTeX equation',
+												),
+												onChanged: (text) {
+													setState(() {
+														_lines[i] = text;
+													});
+												},
+												onFieldSubmitted: (text) {
+													setState(() {
+														_editingFlags[i] = false;
+													});
+													print("Done editing!");
+												},
+											)
+										: GestureDetector(
+												behavior: HitTestBehavior.translucent,
+												onTapUp: (tap) {
+													Offset i = tap.localPosition;
+													print(i.distance.toString() + " " + i.dy.toString());
+												},
+												child: TeXView(
+													child: TeXViewGroup(
+														children: [
+															TeXViewGroupItem(
+																id: i.toString(),
+																child: TeXViewDocument(_lines[i]),
+															),
+														],
+														onTap: (id) => {
+															print(id),
+															setState(() {
+																_editingFlags[int.parse(id)] = true;
+															})
+														},
+													),
+													renderingEngine: const TeXViewRenderingEngine.katex(),
+												),
+											),
 							const SizedBox(height: 16.0),
-							TeXView(
-								child: TeXViewColumn(children: [
-									TeXViewDocument(_textEditingController.text),
-								]),
-								renderingEngine: const TeXViewRenderingEngine.katex(),
-							),
 						],
 					),
 				),
+			),
+			floatingActionButton: FloatingActionButton(
+				onPressed: () {
+					setState(() {
+						_lines.add("new line");
+						_editingFlags.add(false);
+					});
+				},
+				child: const Icon(Icons.add),
 			),
 		);
 	}
