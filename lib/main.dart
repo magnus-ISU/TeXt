@@ -29,16 +29,31 @@ class _MyHomePageState extends State<MyHomePage> {
 	int editingLine = 0;
 
 	void setEditingLine(int i) {
-		editingLine = i;
-		editingController.text = _lines[i];
-		editingController.selection = TextSelection.fromPosition(TextPosition(offset: editingController.text.length));
+		setState(() {
+			for (int j = 0; j < i; j++) {
+				if (_lines[j].trim().isEmpty) {
+					_lines.removeAt(j);
+					i--;
+				}
+			}
+			editingLine = i;
+			editingController.value = TextEditingValue(
+				text: _lines[i],
+				selection: TextSelection.collapsed(offset: _lines[i].length, affinity: TextAffinity.downstream),
+			);
+			for (int j = i + 1; j < _lines.length - 1; j++) {
+				if (_lines[j].trim().isEmpty) {
+					_lines.removeAt(j);
+				}
+			}
+		});
 	}
 
 	@override
 	void initState() {
 		super.initState();
 		_lines.add("Add some \\( \\LaTeX \\) here!");
-		_lines.add("This is a cool equation:\n\\[\n\\sum_{n=0}^\\infty b^n = \\frac 1 {1-b}\n\\]\n");
+		_lines.add("This is a cool equation:\n\\[\n\\sum_{n=0}^\\infty b^n = \\frac 1 {1-b}\n\\]");
 		_lines.add("");
 		setEditingLine(_lines.length - 1);
 	}
@@ -47,9 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
 		if (editingLine == _lines.length - 1) {
 			return true;
 		}
-		setState(() {
-			setEditingLine(_lines.length - 1);
-		});
+		setEditingLine(_lines.length - 1);
 		return false;
 	}
 
@@ -82,9 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
 												),
 										],
 										onTap: (id) => {
-											setState(() {
-												setEditingLine(int.parse(id));
-											})
+											setEditingLine(int.parse(id)),
 										},
 									),
 									renderingEngine: const TeXViewRenderingEngine.katex(),
@@ -96,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
 									controller: editingController,
 									decoration: const InputDecoration(
 										border: OutlineInputBorder(),
-										hintText: 'Enter LaTeX equation',
+										hintText: 'Enter LaTeX',
 									),
 									onChanged: (text) {
 										if (text.endsWith("\n\n")) {
@@ -118,10 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
 										}
 									},
 									onFieldSubmitted: (text) {
-										setState(() {
-											_lines.add("");
-											setEditingLine(_lines.length - 1);
-										});
+										setEditingLine(_lines.length - 1);
 									},
 								),
 								TeXView(
@@ -139,9 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
 												),
 										],
 										onTap: (id) => {
-											setState(() {
-												setEditingLine(int.parse(id));
-											})
+											setEditingLine(int.parse(id)),
 										},
 									),
 									renderingEngine: const TeXViewRenderingEngine.katex(),
@@ -149,9 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
 								GestureDetector(
 									child: const Padding(padding: EdgeInsets.all(30)),
 									onTap: () {
-										setState(() {
-											setEditingLine(_lines.length - 1);
-										});
+										setEditingLine(_lines.length - 1);
 									},
 								),
 							],
