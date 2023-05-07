@@ -33,10 +33,6 @@ class _MyHomePageState extends State<MyHomePage> {
 		editingController.text = _lines[i];
 	}
 
-	String processLineForEmpty(String text) {
-		return text;
-	}
-
 	@override
 	void initState() {
 		super.initState();
@@ -70,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
 											TeXViewGroupItem(
 												id: i.toString(),
 												child: TeXViewDocument(
-													processLineForEmpty(_lines[i]),
+													_lines[i],
 													style: const TeXViewStyle(padding: TeXViewPadding.all(16))
 												),
 											),
@@ -118,7 +114,10 @@ class _MyHomePageState extends State<MyHomePage> {
 										for (int i = editingLine + 1; i < _lines.length; i += 1)
 											TeXViewGroupItem(
 												id: i.toString(),
-												child: TeXViewDocument(processLineForEmpty(_lines[i])),
+												child: TeXViewDocument(
+													_lines[i],
+													style: const TeXViewStyle(padding: TeXViewPadding.all(16))
+												),
 											),
 									],
 									onTap: (id) => {
